@@ -1,0 +1,33 @@
+name: Visual tests
+
+# Runs the Vitest browser-mode visual tests and saves the capture (uiverify-archive/) as an artifact.
+# Holds no secrets, so it runs the same on a pull request from a fork. The upload happens in
+# visual-upload.yml, which GitHub runs from the default branch after this workflow finishes.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:uiverify
+      - uses: actions/upload-artifact@v4
+        with:
+          name: uiverify-archive
+          path: uiverify-archive/
+          if-no-files-found: error
+          retention-days: 7
