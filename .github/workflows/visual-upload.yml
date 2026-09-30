@@ -9,6 +9,9 @@ name: Visual upload
 # objects (fetched, never checked out). Every PR-controlled string (branch names) reaches the shell
 # through `env`, never `${{ }}` interpolation.
 #
+# The run's own exit code isn't shown on the PR (a workflow_run job reports on the default branch), so
+# changes don't fail it; the UI Verify check the GitHub App posts on the PR's commit is the gate.
+#
 # GitHub's own env here describes the default branch, so the PR's commit, branch and number are passed
 # to the CLI explicitly (COMMIT_SHA, BRANCH, PR_NUMBER).
 
@@ -104,4 +107,4 @@ jobs:
           npx -y uiverify@1.7.0 upload \
             --static-dir "$RUNNER_TEMP/archive" \
             --working-directory "$RUNNER_TEMP/repo" \
-            --only-changed $ACCEPT
+            --only-changed --exit-zero-on-changes $ACCEPT
